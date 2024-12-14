@@ -24,11 +24,14 @@ export class MovieService {
     }
 
     async getMovies() {
-        return MovieRepository.find();
+        return MovieRepository.find({
+            relations: ['comments'],
+        });
     }
     async getMovieById(id: string) {
-        return MovieRepository.findOneBy({
-            id: id,
+        return MovieRepository.findOne({
+            where: { id: id },
+            relations: ['comments'],
         });
     }
     async deleteMovie(id: string) {
@@ -48,6 +51,12 @@ export class MovieService {
         comment.rating = request.rate;
         comment.movie = movie;
         return CommentRepository.save(comment);
+    }
+
+    async getCommentById(comment_id: string) {
+        return CommentRepository.findOneBy({
+            id: comment_id,
+        });
     }
 
     async updateComment(comment_id: string, request: CommentRequest) {

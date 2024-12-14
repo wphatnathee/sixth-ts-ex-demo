@@ -3,12 +3,13 @@ import { MovieReloadData } from './config/reload.movie.js';
 import express, { urlencoded, json } from 'express';
 import morgan from 'morgan';
 
+// feature
+import movieRouter from './movie/router/movie.router.js';
+
 const PORT = process.env.PORT || 8080;
 const HOST = process.env.HOST || 'localhost';
 const app = express();
 const movieReloadData = new MovieReloadData();
-
-// reload data
 
 app.use(json());
 app.use(urlencoded({ extended: true }));
@@ -18,6 +19,9 @@ app.use(morgan(':date[iso] | :method | :url | :status | :res[content-length] - :
 app.get('/', (req, res) => {
     res.json({ message: 'Hello World!' });
 });
+
+// movie route
+app.use('/api/v1/movie', movieRouter);
 
 AppDataSource.initialize()
     .then(async () => {
