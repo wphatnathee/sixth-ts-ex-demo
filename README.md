@@ -1,4 +1,4 @@
-# Express TS 4th Workshop
+# Express TS EX 6th Demo
 
 ## 📝 About the Project
 
@@ -49,7 +49,7 @@ To set up the project locally, follow these steps:
 3. Run Script to create database
 
     ```bash
-    npm run db-dev:create 
+    npm run db-dev:create
     ```
 
 4. Run Script to server
