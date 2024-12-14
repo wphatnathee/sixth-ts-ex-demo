@@ -1,29 +1,68 @@
-import { MovieRepository } from "../repository/movie.repository.js";
-import { CommentRepository } from "../repository/comment.repository.js";
-import { Movie } from "../entity/movie.model.js";
-import { MovieRequest } from "../payload/request/movie.request.js";
+import { MovieRepository } from '../repository/movie.repository.js';
+import { CommentRepository } from '../repository/comment.repository.js';
+// import { CommentRepository } from '../repository/comment.repository.js';
+import { Movie } from '../entity/movie.model.js';
+import { Comment } from '../entity/comment.model.js';
+import { MovieRequest } from '../payload/request/movie.request.js';
+import { CommentRequest } from '../payload/request/comment.request.js';
 
 export class MovieService {
-    movieRepository: MovieRepository;
-    commentRepository: CommentRepository;
-    constructor() {
-        this.movieRepository = new MovieRepository();
-        this.commentRepository = new CommentRepository();
-    }
     async saveMovie(movie: MovieRequest) {
         const newMovie = new Movie();
         newMovie.title = movie.title;
         newMovie.description = movie.description;
         newMovie.releaseDate = movie.releaseDate;
-        return this.movieRepository.saveMovie(newMovie);
+        return MovieRepository.save(newMovie);
     }
+
+    async updateMovie(id: string, movie: MovieRequest) {
+        const newMovie = new Movie();
+        newMovie.title = movie.title;
+        newMovie.description = movie.description;
+        newMovie.releaseDate = movie.releaseDate;
+        return MovieRepository.update(id, newMovie);
+    }
+
     async getMovies() {
-        return this.movieRepository.getMovies();
+        return MovieRepository.find();
     }
     async getMovieById(id: string) {
-        return this.movieRepository.getMovieById(id);
+        return MovieRepository.findOneBy({
+            id: id,
+        });
     }
     async deleteMovie(id: string) {
-        await this.movieRepository.deleteMovie(id);
+        await MovieRepository.delete(id);
+    }
+
+    // comment
+    async addComment(movie_id: string, request: CommentRequest) {
+        const movie = await MovieRepository.findOneBy({
+            id: movie_id,
+        });
+        if (!movie) {
+            throw new Error('Movie not found');
+        }
+        const comment = new Comment();
+        comment.content = request.content;
+        comment.rating = request.rate;
+        comment.movie = movie;
+        return CommentRepository.save(comment);
+    }
+
+    async updateComment(comment_id: string, request: CommentRequest) {
+        const comment = await CommentRepository.findOneBy({
+            id: comment_id,
+        });
+        if (!comment) {
+            throw new Error('Comment not found');
+        }
+        comment.content = request.content;
+        comment.rating = request.rate;
+        return CommentRepository.update(comment_id, comment);
+    }
+
+    async deleteComment(comment_id: string) {
+        await CommentRepository.delete(comment_id);
     }
 }

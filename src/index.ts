@@ -1,10 +1,14 @@
 import { AppDataSource } from './data-source.js';
+import { MovieReloadData } from './config/reload.movie.js';
 import express, { urlencoded, json } from 'express';
 import morgan from 'morgan';
 
 const PORT = process.env.PORT || 8080;
 const HOST = process.env.HOST || 'localhost';
 const app = express();
+const movieReloadData = new MovieReloadData();
+
+// reload data
 
 app.use(json());
 app.use(urlencoded({ extended: true }));
@@ -18,6 +22,7 @@ app.get('/', (req, res) => {
 AppDataSource.initialize()
     .then(async () => {
         console.log('Database connected');
+        await movieReloadData.loadData();
         app.listen(PORT, () => {
             console.log(`Server running at http://${HOST}:${PORT}`);
         });

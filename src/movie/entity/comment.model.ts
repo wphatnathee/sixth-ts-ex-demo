@@ -10,7 +10,7 @@ export class Comment extends BaseEntity {
     @Column()
     rating?: number;
 
-    @ManyToOne(() => Movie, (movie) => movie.comments)
+    @ManyToOne(() => Movie, (movie) => movie.comments, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'movie_id' })
     movie?: Relation<Movie>;
 }
