@@ -21,5 +21,6 @@ movieRouter.delete('/:id/comment/:comment_id', movieController.deleteComment);
 movieRouter.get('/:id/avg', movieController.getAvgRating);
 movieRouter.get('/summary/comment', movieController.getTotalCommentFromEachMovie);
 movieRouter.get('/summary/rating', movieController.getMovieRateSummary);
+movieRouter.get('/summary/search', movieController.searchMovie);
 
 export default movieRouter;

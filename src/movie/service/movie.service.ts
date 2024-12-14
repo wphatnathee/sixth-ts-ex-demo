@@ -125,4 +125,26 @@ export class MovieService {
 
         return result;
     }
+
+    async searchMoviesWithDynamicConditions(searchQuery: string, minRating: number | undefined, orderBy: 'ASC' | 'DESC'): Promise<{ movie_id: string; movie_title: string; movie_rating: number }[]> {
+        const queryBuilder = MovieRepository.createQueryBuilder('movie')
+            .leftJoin(Comment, 'comment', 'comment.movie_id = movie.id') // LEFT JOIN tb_comment
+            .select('movie.id', 'movie_id') // Select movie.id as movie_id
+            .addSelect('movie.title', 'movie_title') // Select movie.title as movie_title
+            .addSelect('CASE WHEN ROUND(AVG(comment.rating), 2) IS NULL THEN 0 ELSE ROUND(AVG(comment.rating), 2) END', 'movie_rating')
+            .groupBy('movie.id')
+            .addGroupBy('movie.title');
+
+        if (searchQuery != null || searchQuery !== '' || searchQuery !== undefined) {
+            queryBuilder.where('LOWER(movie.title) LIKE LOWER(:searchQuery)', { searchQuery: `%${searchQuery}%` });
+        }
+
+        if (minRating !== undefined || minRating !== null) {
+            queryBuilder.having('ROUND(AVG(comment.rating), 2) >= :minRating', { minRating });
+        }
+
+        queryBuilder.orderBy('movie.title', orderBy.toUpperCase() as 'ASC' | 'DESC'); // Convert 'asc'/'desc' to uppercase for SQL
+
+        return queryBuilder.getRawMany();
+    }
 }

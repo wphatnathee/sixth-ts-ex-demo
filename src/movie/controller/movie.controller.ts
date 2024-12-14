@@ -78,4 +78,13 @@ export class MovieController {
         const movieRateSummary = await this.movieService.getMoviesWithRatingsAndGrades();
         res.status(200).json(movieRateSummary);
     };
+
+    searchMovie = async (req: Request, res: Response): Promise<void> => {
+        const q = req.query.q as string;
+        const rate = req.query.rate as string;
+        const orderBy = req.query.order_by as 'ASC' | 'DESC';
+        const rateNumber = rate ? parseFloat(rate) : undefined;
+        const movies = await this.movieService.searchMoviesWithDynamicConditions(q, rateNumber, orderBy);
+        res.status(200).json(movies);
+    };
 }
