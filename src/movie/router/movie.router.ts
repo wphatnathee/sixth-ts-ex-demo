@@ -17,4 +17,9 @@ movieRouter.get('/:id/comment/:comment_id', movieController.getCommentById);
 movieRouter.put('/:id/comment/:comment_id', movieController.updateComment);
 movieRouter.delete('/:id/comment/:comment_id', movieController.deleteComment);
 
+// advance feature
+movieRouter.get('/:id/avg', movieController.getAvgRating);
+movieRouter.get('/summary/comment', movieController.getTotalCommentFromEachMovie);
+movieRouter.get('/summary/rating', movieController.getMovieRateSummary);
+
 export default movieRouter;

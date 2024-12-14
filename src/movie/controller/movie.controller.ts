@@ -62,4 +62,20 @@ export class MovieController {
         await this.movieService.deleteComment(req.params.comment_id);
         res.status(200).json({ message: `Comment id: ${req.params.comment_id} deleted` });
     };
+
+    // advance api
+    getAvgRating = async (req: Request, res: Response): Promise<void> => {
+        const avgRating = await this.movieService.getAvgRatingByMovieId(req.params.id);
+        res.status(200).json({ rating: avgRating });
+    };
+
+    getTotalCommentFromEachMovie = async (req: Request, res: Response): Promise<void> => {
+        const totalComment = await this.movieService.getTotalCommentFromEachMovie();
+        res.status(200).json(totalComment);
+    };
+
+    getMovieRateSummary = async (req: Request, res: Response): Promise<void> => {
+        const movieRateSummary = await this.movieService.getMoviesWithRatingsAndGrades();
+        res.status(200).json(movieRateSummary);
+    };
 }

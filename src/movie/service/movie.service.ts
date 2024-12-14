@@ -5,6 +5,7 @@ import { Movie } from '../entity/movie.model.js';
 import { Comment } from '../entity/comment.model.js';
 import { MovieRequest } from '../payload/request/movie.request.js';
 import { CommentRequest } from '../payload/request/comment.request.js';
+import { AppDataSource } from '../../data-source.js';
 
 export class MovieService {
     async saveMovie(movie: MovieRequest) {
@@ -73,5 +74,55 @@ export class MovieService {
 
     async deleteComment(comment_id: string) {
         await CommentRepository.delete(comment_id);
+    }
+
+    // advance command
+    async getAvgRatingByMovieId(movie_id: string) {
+        const result = await CommentRepository.createQueryBuilder('comment').select('ROUND(AVG(comment.rating), 2)', 'avg_rating').where('comment.movie_id = :movie_id', { movie_id }).getRawOne();
+        return result.avg_rating || 0;
+    }
+
+    async getTotalCommentFromEachMovie() {
+        const result = await MovieRepository.createQueryBuilder('movie').leftJoin(Comment, 'comment', 'comment.movie_id = movie.id').select('movie.id', 'movie_id').addSelect('movie.title', 'movie_title').addSelect('COUNT(comment.id)', 'total_comments').groupBy('movie.id').addGroupBy('movie.title').getRawMany();
+        return result;
+    }
+
+    async getMoviesWithRatingsAndGrades(): Promise<
+        {
+            movie_id: string;
+            movie_title: string;
+            movie_rating: number;
+            grade: string;
+        }[]
+    > {
+        const result = await AppDataSource.query(`
+        WITH MovieRatings AS (
+            SELECT
+                tm.id AS movie_id,
+                tm.title AS movie_title,
+                COALESCE(ROUND(AVG(tc.rating), 2), 0) AS movie_rating
+            FROM
+                tb_movie tm
+            LEFT JOIN
+                tb_comment tc ON tm.id = tc.movie_id
+            GROUP BY
+                tm.id, tm.title
+        )
+        SELECT
+            movie_id,
+            movie_title,
+            movie_rating,
+            CASE 
+                WHEN movie_rating >= 4.1 AND movie_rating <= 5 THEN 'Great'
+                WHEN movie_rating >= 3 AND movie_rating < 4.1 THEN 'Good'
+                WHEN movie_rating >= 2 AND movie_rating < 3 THEN 'Average'
+                WHEN movie_rating >= 1 AND movie_rating < 2 THEN 'Poor'
+                ELSE 'No Rating'
+            END AS grade
+        FROM
+            MovieRatings;
+    `);
+
+        return result;
     }
 }
